@@ -27,8 +27,8 @@ const LoginPage = () => {
       });
       console.log(data.token);
 
-      // localStorage.setItem("token", data.token);
-      // router.push("/");
+      localStorage.setItem("token", data.token);
+      router.push("/");
     } catch (error) {
       console.log(error);
     }
