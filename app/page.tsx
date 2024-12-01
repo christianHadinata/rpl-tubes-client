@@ -1,7 +1,8 @@
 "use client";
 
-import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/app/utils/AuthContext";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Select,
@@ -23,28 +24,17 @@ type UserDetails = {
 };
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<UserDetails | null>(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
-        const decoded = jwtDecode<UserDetails>(token);
-        setUser(decoded);
-        setLoading(false);
-      } catch (error) {
-        console.error("Invalid token:", error);
-        setError("Failed to get information from token");
-        setLoading(false);
-      }
-    };
-    fetchToken();
-  }, []);
+    if (!loading && !user) {
+      router.push("/login");
+    }
+    console.log(user);
+  }, [loading, user, router]);
 
   if (loading) {
     return (
@@ -73,20 +63,21 @@ export default function Home() {
     );
   }
 
-  if (error) {
-    return (
-      <div className=" h-screen w-full items-center justify-center bg-blue-50 flex flex-col gap-y-7">
-        <h1 className="text-red-500 text-4xl font-bold">{error}</h1>
-        <p className="text-2xl">Please re-login</p>
-        <Button color="primary" size="lg" as={Link} href="/login">
-          Log in
-        </Button>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className=" h-screen w-full items-center justify-center bg-blue-50 flex flex-col gap-y-7">
+  //       <h1 className="text-red-500 text-4xl font-bold">{error}</h1>
+  //       <p className="text-2xl">Please re-login</p>
+  //       <Button color="primary" size="lg" as={Link} href="/login">
+  //         Log in
+  //       </Button>
+  //     </div>
+  //   );
+  // }
 
   type DataTypes = {
     idx: number;
+    idSidang: number;
     judulSkripsi: string;
     nama: string;
     npm: string;
@@ -263,197 +254,31 @@ export default function Home() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                  <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata blabla blabla"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata blabla blabla"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata blabla blabla"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata blabla blabla"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata blabla blabla"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata blabla blabla"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
 
               {/* Hanya tersedia bagi koordinator */}
-              <div className="pt-8 w-full flex justify-evenly items-center">
-                <Button
-                  as={Link}
-                  href={""}
-                  className="bg-violet-500 text-white  text-lg w-40 h-24 break-words text-center whitespace-normal overflow-visible"
-                  size="md"
-                >
-                  <p className="break-words">Komponen dan Bobot Penilaian</p>
-                </Button>
+              {user?.role === "Koordinator" ? (
+                <div className="pt-8 w-full flex justify-evenly items-center">
+                  <Button
+                    as={Link}
+                    href={""}
+                    className="bg-violet-500 text-white  text-lg w-40 h-24 break-words text-center whitespace-normal overflow-visible"
+                    size="md"
+                  >
+                    <p className="break-words">Komponen dan Bobot Penilaian</p>
+                  </Button>
 
-                <Button
-                  as={Link}
-                  href={""}
-                  className="bg-violet-500 text-white  text-lg w-40 h-24 break-words text-center whitespace-normal overflow-visible"
-                  size="md"
-                >
-                  Tambah Data Sidang
-                </Button>
-              </div>
+                  <Button
+                    as={Link}
+                    href={""}
+                    className="bg-violet-500 text-white  text-lg w-40 h-24 break-words text-center whitespace-normal overflow-visible"
+                    size="md"
+                  >
+                    Tambah Data Sidang
+                  </Button>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
