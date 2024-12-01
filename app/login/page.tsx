@@ -8,6 +8,8 @@ import Image from "next/image";
 import { Input, Button, ButtonGroup } from "@nextui-org/react";
 import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon ";
 import { EyeFilledIcon } from "../components/EyeFilledIcon";
+import { useAuth } from "../utils/AuthContext";
+import { jwtDecode } from "jwt-decode";
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -16,6 +18,13 @@ const LoginPage = () => {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const router = useRouter();
+  const { setUser } = useAuth();
+
+  interface UserPayload {
+    id: string;
+    email: string;
+    role: string;
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,6 +37,10 @@ const LoginPage = () => {
       console.log(data.token);
 
       localStorage.setItem("token", data.token);
+
+      const decodedUser: UserPayload = jwtDecode(data.token);
+      setUser(decodedUser);
+
       router.push("/");
     } catch (error) {
       console.log(error);
