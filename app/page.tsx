@@ -23,16 +23,21 @@ type DataSidangTypes = {
   idSidang: number;
   judulSkripsi: string;
   TA: number;
+  tahunAjaran: string;
   namaMahasiswa: string;
   npm: string;
-  emailDosen: string;
-  roleDosen: string;
+  emailDosen: string | null;
+  roleDosen: string | null;
 };
 
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [dataSidang, setDataSidang] = useState<DataSidangTypes[]>();
+  const [dataSidang, setDataSidang] = useState<DataSidangTypes[] | undefined>();
+  const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
+  const [filteredData, setFilteredData] = useState<
+    DataSidangTypes[] | undefined
+  >([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -50,6 +55,13 @@ export default function Home() {
       );
 
       setDataSidang(data);
+
+      const dataWithIndex = dataSidang?.map((item, index) => ({
+        ...item,
+        idx: index + 1,
+      }));
+
+      setFilteredData(dataWithIndex);
     };
 
     if (user) {
@@ -58,9 +70,23 @@ export default function Home() {
     console.log(user);
   }, [loading, user, router]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    let updatedData;
+    if (selectedTahunAjaran === "") {
+      updatedData = dataSidang; // Show all data if no filter is applied
+    } else {
+      updatedData = dataSidang?.filter(
+        (item) => item.tahunAjaran === selectedTahunAjaran
+      );
+    }
 
-  // const data: DataSidangTypes[] = [];
+    const dataWithIndex = updatedData?.map((item, index) => ({
+      ...item,
+      idx: index + 1,
+    }));
+
+    setFilteredData(dataWithIndex);
+  }, [selectedTahunAjaran, dataSidang]);
 
   const columns = [
     {
@@ -88,9 +114,21 @@ export default function Home() {
       label: "VIEW",
     },
   ];
-  const data = dataSidang?.map((item, index) => {
-    return { ...item, idx: index + 1 };
-  });
+
+  const tahunAjaran = [
+    {
+      key: "GANJIL 2023/2024",
+      label: "GANJIL 2023/2024",
+    },
+    {
+      key: "GENAP 2023/2024",
+      label: "GENAP 2023/2024",
+    },
+    {
+      key: "GANJIL 2024/2025",
+      label: "GANJIL 2024/2025",
+    },
+  ];
 
   if (loading) {
     return (
@@ -139,20 +177,23 @@ export default function Home() {
           <div className="w-2/3 max-h-screen ">
             <div className="flex w-full  ">
               {/* tahun ajaran */}
-              <Select label="Tahun Ajaran" className="w-1/5 rounded-l-lg">
-                {/* {animals.map((animal) => (
-          <SelectItem key={animal.key}>
-            {animal.label}
-          </SelectItem>
-        ))} */}
-                <SelectItem key={1}>{"blabla"}</SelectItem>
+              <Select
+                label="Tahun Ajaran"
+                className="w-1/5 rounded-l-lg"
+                onChange={(e) => {
+                  setSelectedTahunAjaran(e.target.value);
+                }}
+              >
+                {tahunAjaran.map((tahun) => (
+                  <SelectItem key={tahun.key}>{tahun.label}</SelectItem>
+                ))}
               </Select>
               {/* tahun ajaran */}
 
               {/* Search*/}
               <Select
                 label="Sort:"
-                className="w-1/12 rounded-l-lg ml-auto"
+                className="w-1/12 rounded-l-lg ml-16"
                 radius="none"
                 classNames={{
                   trigger:
@@ -187,14 +228,16 @@ export default function Home() {
               {/* Search*/}
 
               {/* Role */}
-              <Select label="Role:" className="w-1/5 rounded-l-lg ml-auto">
-                {/* {animals.map((animal) => (
-          <SelectItem key={animal.key}>
-            {animal.label}
-          </SelectItem>
-        ))} */}
-                <SelectItem key={1}>{"blabla"}</SelectItem>
-              </Select>
+              {user?.role !== "Mahasiswa" && (
+                <Select label="Role:" className="w-1/5 rounded-l-lg ml-16">
+                  {/* {animals.map((animal) => (
+                            <SelectItem key={animal.key}>
+                              {animal.label}
+                            </SelectItem>
+                          ))} */}
+                  <SelectItem key={1}>{"blabla"}</SelectItem>
+                </Select>
+              )}
               {/* Role */}
             </div>
             <div className="pt-8">
@@ -216,7 +259,7 @@ export default function Home() {
                   )}
                 </TableHeader>
                 <TableBody
-                  items={data || []}
+                  items={filteredData || []}
                   emptyContent={"Data Sidang Skripsi Masih Kosong"}
                 >
                   {(item) => {
