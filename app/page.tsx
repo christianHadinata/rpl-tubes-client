@@ -35,6 +35,9 @@ export default function Home() {
   const router = useRouter();
   const [dataSidang, setDataSidang] = useState<DataSidangTypes[] | undefined>();
   const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedKategori, setSelectedKategori] = useState("");
+  const [searchMessage, setSearchMessage] = useState("");
   const [filteredData, setFilteredData] = useState<
     DataSidangTypes[] | undefined
   >([]);
@@ -80,13 +83,51 @@ export default function Home() {
       );
     }
 
+    if (selectedRole != "") {
+      updatedData = updatedData?.filter(
+        (item) => item.roleDosen === selectedRole
+      );
+    }
+
     const dataWithIndex = updatedData?.map((item, index) => ({
       ...item,
       idx: index + 1,
     }));
 
     setFilteredData(dataWithIndex);
-  }, [selectedTahunAjaran, dataSidang]);
+  }, [selectedTahunAjaran, dataSidang, selectedRole]);
+
+  const searchHandler = (value: string) => {
+    if (selectedKategori === "namaMahasiswa") {
+      setFilteredData(() =>
+        filteredData?.filter((e: DataSidangTypes) =>
+          e.namaMahasiswa.toLowerCase().includes(value.toLowerCase())
+        )
+      );
+    } else if (selectedKategori === "judulSkripsi") {
+      setFilteredData(() =>
+        filteredData?.filter((e: DataSidangTypes) =>
+          e.judulSkripsi.toLowerCase().includes(value.toLowerCase())
+        )
+      );
+    } else if (selectedKategori === "npm") {
+      setFilteredData(() =>
+        filteredData?.filter((e: DataSidangTypes) =>
+          e.npm.toLowerCase().includes(value.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredData(() =>
+        filteredData?.filter((e) =>
+          Object.values(e).some(
+            (attr) =>
+              typeof attr === "string" &&
+              attr.toLowerCase().includes(value.toLowerCase())
+          )
+        )
+      );
+    }
+  };
 
   const columns = [
     {
@@ -127,6 +168,36 @@ export default function Home() {
     {
       key: "GANJIL 2024/2025",
       label: "GANJIL 2024/2025",
+    },
+  ];
+
+  const kategoriList = [
+    {
+      key: "judulSkripsi",
+      label: "Judul",
+    },
+    {
+      key: "namaMahasiswa",
+      label: "Nama",
+    },
+    {
+      key: "npm",
+      label: "NPM",
+    },
+  ];
+
+  const roleList = [
+    {
+      key: "Koordinator",
+      label: "Koordinator",
+    },
+    {
+      key: "Pembimbing",
+      label: "Pembimbing",
+    },
+    {
+      key: "Penguji",
+      label: "Penguji",
     },
   ];
 
@@ -192,33 +263,33 @@ export default function Home() {
 
               {/* Search*/}
               <Select
-                label="Sort:"
-                className="w-1/12 rounded-l-lg ml-16"
+                label="Filter"
+                className="w-[10%] rounded-l-lg ml-16"
                 radius="none"
                 classNames={{
                   trigger:
                     "rounded-l-lg bg-violet-500 hover:!bg-violet-400 text-white",
                   label: "text-white",
                 }}
+                onChange={(e) => setSelectedKategori(e.target.value)}
               >
-                {/* {animals.map((animal) => (
-          <SelectItem key={animal.key}>
-            {animal.label}
-          </SelectItem>
-        ))} */}
-                <SelectItem key={1} className="text-white">
-                  {"blabla"}
-                </SelectItem>
+                {kategoriList.map((kategori) => (
+                  <SelectItem key={kategori.key}>{kategori.label}</SelectItem>
+                ))}
               </Select>
               <Input
                 isClearable
-                type="email"
-                label="Email"
+                type="text"
+                label="Cari"
                 radius="none"
-                placeholder="username@student.unpar.ac.id"
+                placeholder="Cari berdasarkan Filter"
                 className="w-1/3"
+                onChange={(e) => setSearchMessage(e.target.value)}
               />
-              <Button className="h-auto rounded-none rounded-r-lg bg-violet-500">
+              <Button
+                className="h-auto rounded-none rounded-r-lg bg-violet-500"
+                onClick={() => searchHandler(searchMessage)}
+              >
                 <img
                   src="/icon-search-putih.png"
                   alt="Search"
@@ -229,13 +300,16 @@ export default function Home() {
 
               {/* Role */}
               {user?.role !== "Mahasiswa" && (
-                <Select label="Role:" className="w-1/5 rounded-l-lg ml-16">
-                  {/* {animals.map((animal) => (
-                            <SelectItem key={animal.key}>
-                              {animal.label}
-                            </SelectItem>
-                          ))} */}
-                  <SelectItem key={1}>{"blabla"}</SelectItem>
+                <Select
+                  label="Role"
+                  className="w-1/5 rounded-l-lg ml-16"
+                  onChange={(e) => {
+                    setSelectedRole(e.target.value);
+                  }}
+                >
+                  {roleList.map((role) => (
+                    <SelectItem key={role.key}>{role.label}</SelectItem>
+                  ))}
                 </Select>
               )}
               {/* Role */}
