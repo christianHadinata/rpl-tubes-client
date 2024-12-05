@@ -37,6 +37,7 @@ export default function Home() {
   const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedKategori, setSelectedKategori] = useState("");
+  const [tempSearchMessage, setTempSearchMessage] = useState("");
   const [searchMessage, setSearchMessage] = useState("");
   const [filteredData, setFilteredData] = useState<
     DataSidangTypes[] | undefined
@@ -74,60 +75,74 @@ export default function Home() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    let updatedData;
-    if (selectedTahunAjaran === "") {
-      updatedData = dataSidang; // Show all data if no filter is applied
-    } else {
-      updatedData = dataSidang?.filter(
-        (item) => item.tahunAjaran === selectedTahunAjaran
-      );
+    if (dataSidang) {
+      let updatedData = dataSidang;
+
+      if (selectedTahunAjaran) {
+        updatedData = updatedData.filter(
+          (item) => item.tahunAjaran === selectedTahunAjaran
+        );
+      }
+
+      if (selectedRole) {
+        updatedData = updatedData.filter(
+          (item) => item.roleDosen === selectedRole
+        );
+      }
+
+      if (searchMessage) {
+        updatedData = updatedData.filter((e) =>
+          selectedKategori
+            ? e[selectedKategori as keyof DataSidangTypes]
+                ?.toString()
+                .toLowerCase()
+                .includes(searchMessage.toLowerCase())
+            : Object.values(e).some(
+                (attr) =>
+                  typeof attr === "string" &&
+                  attr.toLowerCase().includes(searchMessage.toLowerCase())
+              )
+        );
+      }
+
+      const dataWithIndex = updatedData.map((item, index) => ({
+        ...item,
+        idx: index + 1,
+      }));
+
+      setFilteredData(dataWithIndex);
     }
+  }, [
+    dataSidang,
+    selectedTahunAjaran,
+    selectedRole,
+    searchMessage,
+    selectedKategori,
+  ]);
 
-    if (selectedRole != "") {
-      updatedData = updatedData?.filter(
-        (item) => item.roleDosen === selectedRole
-      );
-    }
-
-    const dataWithIndex = updatedData?.map((item, index) => ({
-      ...item,
-      idx: index + 1,
-    }));
-
-    setFilteredData(dataWithIndex);
-  }, [selectedTahunAjaran, dataSidang, selectedRole]);
-
-  const searchHandler = (value: string) => {
-    if (selectedKategori === "namaMahasiswa") {
-      setFilteredData(() =>
-        filteredData?.filter((e: DataSidangTypes) =>
-          e.namaMahasiswa.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    } else if (selectedKategori === "judulSkripsi") {
-      setFilteredData(() =>
-        filteredData?.filter((e: DataSidangTypes) =>
-          e.judulSkripsi.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    } else if (selectedKategori === "npm") {
-      setFilteredData(() =>
-        filteredData?.filter((e: DataSidangTypes) =>
-          e.npm.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredData(() =>
-        filteredData?.filter((e) =>
-          Object.values(e).some(
-            (attr) =>
-              typeof attr === "string" &&
-              attr.toLowerCase().includes(value.toLowerCase())
-          )
-        )
-      );
-    }
-  };
+  // const searchHandler = (value: string) => {
+  //   if (
+  //     selectedKategori === "namaMahasiswa" ||
+  //     selectedKategori === "judulSkripsi" ||
+  //     selectedKategori === "npm"
+  //   ) {
+  //     setFilteredData(() =>
+  //       filteredData?.filter((e: DataSidangTypes) =>
+  //         e[selectedKategori].toLowerCase().includes(value.toLowerCase())
+  //       )
+  //     );
+  //   } else {
+  //     setFilteredData(() =>
+  //       filteredData?.filter((e) =>
+  //         Object.values(e).some(
+  //           (attr) =>
+  //             typeof attr === "string" &&
+  //             attr.toLowerCase().includes(value.toLowerCase())
+  //         )
+  //       )
+  //     );
+  //   }
+  // };
 
   const columns = [
     {
@@ -284,11 +299,11 @@ export default function Home() {
                 radius="none"
                 placeholder="Cari berdasarkan Filter"
                 className="w-1/3"
-                onChange={(e) => setSearchMessage(e.target.value)}
+                onChange={(e) => setTempSearchMessage(e.target.value)}
               />
               <Button
                 className="h-auto rounded-none rounded-r-lg bg-violet-500"
-                onClick={() => searchHandler(searchMessage)}
+                onClick={() => setSearchMessage(tempSearchMessage)}
               >
                 <img
                   src="/icon-search-putih.png"
@@ -413,7 +428,7 @@ export default function Home() {
 
                   <Button
                     as={Link}
-                    href={""}
+                    href={"/koordinator/tambah-data-sidang"}
                     className="bg-violet-500 text-white  text-lg w-40 h-24 break-words text-center whitespace-normal overflow-visible"
                     size="md"
                   >
