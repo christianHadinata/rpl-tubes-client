@@ -215,12 +215,12 @@ export default function Home() {
       label: "Pembimbing Pendamping",
     },
     {
-      key: "Penguji Utama",
-      label: "Penguji Utama",
+      key: "Ketua Tim Penguji",
+      label: "Ketua Tim Penguji",
     },
     {
-      key: "Penguji Pendamping",
-      label: "Penguji Pendamping",
+      key: "Anggota Tim Penguji",
+      label: "Anggota Tim Penguji",
     },
   ];
 
@@ -379,7 +379,17 @@ export default function Home() {
                           {item.TA}
                         </TableCell>
                         <TableCell className="text-center font-medium max-w-10">
-                          <Button as={Link} href={""} variant="bordered">
+                          <Button
+                            as={Link}
+                            href={""}
+                            variant="bordered"
+                            isDisabled={item.TA === 1 ? true : false}
+                            className={`${
+                              item.TA === 1
+                                ? "cursor-not-allowed opacity-50 pointer-events-auto"
+                                : "cursor-pointer"
+                            }`}
+                          >
                             <img
                               src="/icon-detail.png"
                               alt=""
@@ -427,7 +437,7 @@ export default function Home() {
                 <div className="pt-8 w-full flex justify-evenly items-center">
                   <Button
                     as={Link}
-                    href={""}
+                    href={"/koordinator/komponen-dan-bobot"}
                     className="bg-violet-500 text-white  text-lg w-40 h-24 break-words text-center whitespace-normal overflow-visible"
                     size="md"
                   >
