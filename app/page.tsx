@@ -207,12 +207,20 @@ export default function Home() {
       label: "Koordinator",
     },
     {
-      key: "Pembimbing",
-      label: "Pembimbing",
+      key: "Pembimbing Utama",
+      label: "Pembimbing Utama",
     },
     {
-      key: "Penguji",
-      label: "Penguji",
+      key: "Pembimbing Pendamping",
+      label: "Pembimbing Pendamping",
+    },
+    {
+      key: "Penguji Utama",
+      label: "Penguji Utama",
+    },
+    {
+      key: "Penguji Pendamping",
+      label: "Penguji Pendamping",
     },
   ];
 

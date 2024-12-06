@@ -58,7 +58,7 @@ export default function TambahDataSidang() {
   useEffect(() => {
     const fetchDataMahasiswa = async () => {
       const { data } = await axios.get(
-        "http://localhost:5000/api/koordinator/mahasiswa-belum-sidang"
+        "http://localhost:5000/api/koordinator/all-mahasiswa"
       );
 
       setDataMahasiswa(data);
@@ -213,7 +213,7 @@ export default function TambahDataSidang() {
   ];
 
   return (
-    <div className="bg-blue-50 w-screen max-h-screen overflow-x-hidden">
+    <div className="bg-blue-50 w-screen h-screen overflow-x-hidden">
       <h1 className="text-5xl font-bold text-blue-400 text-center py-10">
         Tambah Data Sidang
       </h1>
