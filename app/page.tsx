@@ -30,6 +30,11 @@ type DataSidangTypes = {
   roleDosen: string | null;
 };
 
+type RoleListTypes = {
+  key: string;
+  label: string;
+};
+
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -42,6 +47,8 @@ export default function Home() {
   const [filteredData, setFilteredData] = useState<
     DataSidangTypes[] | undefined
   >([]);
+
+  const [roleList, setRoleList] = useState<RoleListTypes[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -70,6 +77,23 @@ export default function Home() {
 
     if (user) {
       fetchData();
+      const updatedRoleList =
+        user.role === "Koordinator"
+          ? [
+              { key: "Koordinator", label: "Koordinator" },
+              { key: "Pembimbing Utama", label: "Pembimbing Utama" },
+              { key: "Pembimbing Pendamping", label: "Pembimbing Pendamping" },
+              { key: "Ketua Tim Penguji", label: "Ketua Tim Penguji" },
+              { key: "Anggota Tim Penguji", label: "Anggota Tim Penguji" },
+            ]
+          : [
+              { key: "Pembimbing Utama", label: "Pembimbing Utama" },
+              { key: "Pembimbing Pendamping", label: "Pembimbing Pendamping" },
+              { key: "Ketua Tim Penguji", label: "Ketua Tim Penguji" },
+              { key: "Anggota Tim Penguji", label: "Anggota Tim Penguji" },
+            ];
+
+      setRoleList(updatedRoleList);
     }
     console.log(user);
   }, [loading, user, router]);
@@ -198,29 +222,6 @@ export default function Home() {
     {
       key: "npm",
       label: "NPM",
-    },
-  ];
-
-  const roleList = [
-    {
-      key: "Koordinator",
-      label: "Koordinator",
-    },
-    {
-      key: "Pembimbing Utama",
-      label: "Pembimbing Utama",
-    },
-    {
-      key: "Pembimbing Pendamping",
-      label: "Pembimbing Pendamping",
-    },
-    {
-      key: "Ketua Tim Penguji",
-      label: "Ketua Tim Penguji",
-    },
-    {
-      key: "Anggota Tim Penguji",
-      label: "Anggota Tim Penguji",
     },
   ];
 
@@ -381,7 +382,7 @@ export default function Home() {
                         <TableCell className="text-center font-medium max-w-10">
                           <Button
                             as={Link}
-                            href={""}
+                            href={`/navigation/${item.roleDosen}/${item.idSidang}`}
                             variant="bordered"
                             isDisabled={item.TA === 1 ? true : false}
                             className={`${
