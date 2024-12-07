@@ -190,7 +190,7 @@ export default function page() {
                 : true
             }
           >
-            Lanjut
+            LANJUT
           </Button>
         </div>
       </form>
