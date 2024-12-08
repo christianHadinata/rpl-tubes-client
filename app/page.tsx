@@ -382,7 +382,9 @@ export default function Home() {
                         <TableCell className="text-center font-medium max-w-10">
                           <Button
                             as={Link}
-                            href={`/navigation/${item.roleDosen}/${item.idSidang}`}
+                            href={`/navigation/${
+                              item.roleDosen || "Mahasiswa"
+                            }/${item.idSidang}`}
                             variant="bordered"
                             isDisabled={item.TA === 1 ? true : false}
                             className={`${
