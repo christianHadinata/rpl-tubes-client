@@ -23,7 +23,19 @@ type Params = {
 };
 
 type DataSidangTypes = {
+  idSidang: number;
   judulSkripsi: string;
+  namaMahasiswa: string;
+  npm: string;
+  namaPembimbingUtama: string;
+  namaPembimbingPendamping: string;
+  namaKetuaTimPenguji: number;
+  namaAnggotaTimPenguji: string;
+  ta: string;
+  tahunAjaran: string;
+  tanggal: string;
+  jamMulai: string;
+  tempat: string;
 };
 
 type ButtonConfig = {
@@ -67,13 +79,30 @@ export default function page({ params }: { params: Params }) {
     const buttonConfigMap: { [key: string]: ButtonConfig[] } = {
       Koordinator: [
         { icon: commonIcons.jadwal, label: "JADWAL DAN TEMPAT SIDANG" },
-        { icon: commonIcons.nilai, label: "NILAI" },
+        {
+          icon: commonIcons.nilai,
+          label: "NILAI",
+          link: `/nilai-koordinator/${idSidangInt}`,
+        },
         { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
         { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
       ],
       "Pembimbing Utama": [
-        { icon: commonIcons.jadwal, label: "JADWAL MEMBUAT CATATAN SIDANG" },
+        {
+          icon: commonIcons.catatanSidang,
+          label: "MEMBUAT CATATAN SIDANG",
+          link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
+        },
         { icon: commonIcons.nilai, label: "NILAI" },
+        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
+        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+      ],
+      "Pembimbing Pendamping": [
+        {
+          icon: commonIcons.catatanSidang,
+          label: "MEMBUAT CATATAN SIDANG",
+          link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
+        },
         { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
         { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
       ],
@@ -88,7 +117,11 @@ export default function page({ params }: { params: Params }) {
         { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
       ],
       Mahasiswa: [
-        { icon: commonIcons.catatanSidang, label: "MELIHAT CATATAN SIDANG" },
+        {
+          icon: commonIcons.catatanSidang,
+          label: "MELIHAT CATATAN SIDANG",
+          link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
+        },
         { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
         { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
       ],
@@ -109,12 +142,14 @@ export default function page({ params }: { params: Params }) {
           {buttons.map((button, index) => (
             <Button
               key={index}
+              as={Link}
               className={`
                 bg-violet-500 text-white w-32 h-32 rounded-lg 
                 flex flex-col items-center justify-center 
                 break-words text-center whitespace-normal overflow-visible
                 ${buttons.length === 3 && index === 0 ? "col-span-2" : ""}
               `}
+              href={`${button.link}`}
             >
               <img
                 src={button.icon}
