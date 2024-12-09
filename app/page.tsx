@@ -208,6 +208,10 @@ export default function Home() {
       key: "GANJIL 2024/2025",
       label: "GANJIL 2024/2025",
     },
+    {
+      key: "GENAP 2024/2025",
+      label: "GENAP 2024/2025",
+    },
   ];
 
   const kategoriList = [
