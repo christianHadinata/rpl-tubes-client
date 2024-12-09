@@ -37,6 +37,7 @@ type DataSidangTypes = {
   tahunAjaran: string;
   tanggal: string;
   jamMulai: string;
+  jamSelesai: string;
   tempat: string;
 };
 

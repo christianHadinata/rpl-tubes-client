@@ -35,6 +35,7 @@ type DataSidangTypes = {
   tahunAjaran: string;
   tanggal: string;
   jamMulai: string;
+  jamSelesai: string;
   tempat: string;
 };
 
@@ -78,14 +79,26 @@ export default function page({ params }: { params: Params }) {
 
     const buttonConfigMap: { [key: string]: ButtonConfig[] } = {
       Koordinator: [
-        { icon: commonIcons.jadwal, label: "JADWAL DAN TEMPAT SIDANG" },
+        {
+          icon: commonIcons.jadwal,
+          label: "JADWAL DAN TEMPAT SIDANG",
+          link: `/jadwal-dan-tempat/${roleDosen}/${idSidangInt}`,
+        },
         {
           icon: commonIcons.nilai,
           label: "NILAI",
           link: `/nilai-koordinator/${idSidangInt}`,
         },
-        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
-        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+        {
+          icon: commonIcons.informasi,
+          label: "INFORMASI SIDANG SKRIPSI",
+          link: `/informasi-sidang/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.persetujuan,
+          label: "PERSETUJUAN BAP",
+          link: `/persetujuan-bap/${roleDosen}/${idSidangInt}`,
+        },
       ],
       "Pembimbing Utama": [
         {
@@ -93,9 +106,21 @@ export default function page({ params }: { params: Params }) {
           label: "MEMBUAT CATATAN SIDANG",
           link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
         },
-        { icon: commonIcons.nilai, label: "NILAI" },
-        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
-        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+        {
+          icon: commonIcons.nilai,
+          label: "NILAI",
+          link: `/nilai-dosen/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.informasi,
+          label: "INFORMASI SIDANG SKRIPSI",
+          link: `/informasi-sidang/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.persetujuan,
+          label: "PERSETUJUAN BAP",
+          link: `/persetujuan-bap/${roleDosen}/${idSidangInt}`,
+        },
       ],
       "Pembimbing Pendamping": [
         {
@@ -103,18 +128,50 @@ export default function page({ params }: { params: Params }) {
           label: "MEMBUAT CATATAN SIDANG",
           link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
         },
-        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
-        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+        {
+          icon: commonIcons.informasi,
+          label: "INFORMASI SIDANG SKRIPSI",
+          link: `/informasi-sidang/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.persetujuan,
+          label: "PERSETUJUAN BAP",
+          link: `/persetujuan-bap/${roleDosen}/${idSidangInt}`,
+        },
       ],
       "Ketua Tim Penguji": [
-        { icon: commonIcons.nilai, label: "NILAI" },
-        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
-        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+        {
+          icon: commonIcons.nilai,
+          label: "NILAI",
+          link: `/nilai-dosen/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.informasi,
+          label: "INFORMASI SIDANG SKRIPSI",
+          link: `/informasi-sidang/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.persetujuan,
+          label: "PERSETUJUAN BAP",
+          link: `/persetujuan-bap/${roleDosen}/${idSidangInt}`,
+        },
       ],
       "Anggota Tim Penguji": [
-        { icon: commonIcons.nilai, label: "NILAI" },
-        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
-        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+        {
+          icon: commonIcons.nilai,
+          label: "NILAI",
+          link: `/nilai-dosen/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.informasi,
+          label: "INFORMASI SIDANG SKRIPSI",
+          link: `/informasi-sidang/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.persetujuan,
+          label: "PERSETUJUAN BAP",
+          link: `/persetujuan-bap/${roleDosen}/${idSidangInt}`,
+        },
       ],
       Mahasiswa: [
         {
@@ -122,8 +179,16 @@ export default function page({ params }: { params: Params }) {
           label: "MELIHAT CATATAN SIDANG",
           link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
         },
-        { icon: commonIcons.informasi, label: "INFORMASI SIDANG SKRIPSI" },
-        { icon: commonIcons.persetujuan, label: "PERSETUJUAN BAP" },
+        {
+          icon: commonIcons.informasi,
+          label: "INFORMASI SIDANG SKRIPSI",
+          link: `/informasi-sidang/${roleDosen}/${idSidangInt}`,
+        },
+        {
+          icon: commonIcons.persetujuan,
+          label: "PERSETUJUAN BAP",
+          link: `/persetujuan-bap/${roleDosen}/${idSidangInt}`,
+        },
       ],
     };
 
