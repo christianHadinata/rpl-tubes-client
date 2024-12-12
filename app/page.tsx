@@ -49,6 +49,9 @@ export default function Home() {
   >([]);
 
   const [roleList, setRoleList] = useState<RoleListTypes[]>([]);
+  const [npm, setNpm] = useState("");
+
+  const { setUser } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -94,6 +97,22 @@ export default function Home() {
             ];
 
       setRoleList(updatedRoleList);
+
+      if (user?.role === "Mahasiswa") {
+        const fetchNPM = async () => {
+          const { data } = await axios.get(
+            "http://localhost:5000/api/mahasiswa/npm",
+            {
+              params: { email: user?.email },
+            }
+          );
+          console.log(data);
+
+          setNpm(data);
+        };
+
+        fetchNPM();
+      }
     }
     console.log(user);
   }, [loading, user, router]);
@@ -143,6 +162,11 @@ export default function Home() {
     searchMessage,
     selectedKategori,
   ]);
+
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   // const searchHandler = (value: string) => {
   //   if (
@@ -268,6 +292,7 @@ export default function Home() {
             size="lg"
             as={Link}
             href="/login"
+            onClick={handleLogOut}
           >
             Log out
           </Button>
@@ -458,6 +483,21 @@ export default function Home() {
                     size="md"
                   >
                     Tambah Data Sidang
+                  </Button>
+                </div>
+              ) : null}
+
+              {/* Hanya tersedia bagi Mahasiswa */}
+              {user?.role === "Mahasiswa" ? (
+                <div className="pt-8 w-full flex justify-evenly items-center">
+                  <Button
+                    as={Link}
+                    href={`/nilai-skripsi-mahasiswa/${npm}`}
+                    className="bg-violet-500 text-white  text-lg w-40 h-20 break-words text-center whitespace-normal overflow-visible"
+                    size="md"
+                  >
+                    <img src={"/icon-lihatNilai.png"} width="50" height="50" />
+                    <p className="break-words">Melihat Nilai</p>
                   </Button>
                 </div>
               ) : null}
