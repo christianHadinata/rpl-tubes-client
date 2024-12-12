@@ -63,11 +63,14 @@ export default function page({ params }: { params: Params }) {
       );
       setDataSidang(data);
 
-      const formatTanggal = formatDate(data.tanggal);
+      if (data.tanggal) {
+        const formatTanggal = formatDate(data.tanggal);
+        setTanggalFormated(formatTanggal);
+      }
+
       const formatJamMulai = formatTime(data.jamMulai);
       const formatJamSelesai = formatTime(data.jamSelesai);
 
-      setTanggalFormated(formatTanggal);
       setJamMulaiFormated(formatJamMulai);
       setJamSelesaiFormated(formatJamSelesai);
     };
