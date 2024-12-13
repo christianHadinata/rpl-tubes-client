@@ -46,7 +46,7 @@ export default function TambahDataSidang() {
   const [selectedDosenPengujiUtama, setSelectedDosenPengujiUtama] =
     useState("");
   const [selectedDosenPengujiPendamping, setSelectedDosenPengujiPendamping] =
-    useState("");
+    useState("-");
 
   const [selectedNama, setSelectedNama] = useState<Selection>(new Set([]));
   const [selectedNPM, setSelectedNPM] = useState<Selection>(new Set([]));
@@ -65,8 +65,13 @@ export default function TambahDataSidang() {
     };
 
     const fetchDataDosen = async () => {
-      const { data } = await axios.get("http://localhost:5000/api/dosen/all");
-      setDataDosen(data);
+      const { data } = await axios.get<DosenTypes[]>(
+        "http://localhost:5000/api/dosen/all"
+      );
+      const filteredData = data.filter(
+        (currData) => currData.emailDosen != "-"
+      );
+      setDataDosen(filteredData);
     };
 
     fetchDataMahasiswa();
@@ -97,6 +102,9 @@ export default function TambahDataSidang() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (selectedDosenPembimbingPendamping === "") {
+      setSelectedDosenPembimbingPendamping("-");
+    }
 
     if (
       !selectedMahasiswa ||
@@ -104,7 +112,6 @@ export default function TambahDataSidang() {
       !jenisSkripsi ||
       !tahunAkademik ||
       !selectedDosenPembimbingUtama ||
-      !selectedDosenPembimbingPendamping ||
       !selectedDosenPengujiUtama ||
       !selectedDosenPengujiPendamping
     ) {
