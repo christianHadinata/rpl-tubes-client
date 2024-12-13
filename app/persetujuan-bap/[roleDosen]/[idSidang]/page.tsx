@@ -76,8 +76,11 @@ export default function page({ params }: { params: Params }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [dataSidang, setDataSidang] = useState<DataSidangTypes>();
-  const [tanggalFormated, setTanggalFormated] = useState("");
+  const [tanggalFormated, setTanggalFormated] = useState("-");
   const [dataNilaiBAP, setDataNilaiBAP] = useState<DataNilaiBAPTypes[]>();
+  const [persentaseTotal, setPersentaseTotal] = useState(0);
+  const [nilaiAkhirTotal, setNilaiAkhirTotal] = useState(0);
+  const [enableTotalNilai, setEnableTotalNilai] = useState(false);
   const [dataTTDBAP, setDataTTDBAP] = useState<DataTTDBAPTypes[]>();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -87,6 +90,7 @@ export default function page({ params }: { params: Params }) {
 
   const [disableButtonTTD, setDisableButtonTTD] = useState(false);
   const [disableButtonUnduhPDF, setDisableButtonUnduhPDF] = useState(true);
+  const [isNilaiLengkap, setIsNilaiLengkap] = useState(false);
 
   const [fileTTD, setFileTTD] = useState<File | null>(null);
   useEffect(() => {
@@ -101,9 +105,11 @@ export default function page({ params }: { params: Params }) {
       );
       setDataSidang(data);
 
-      const formatTanggal = formatDate(data.tanggal);
+      if (data.tanggal) {
+        const formatTanggal = formatDate(data.tanggal);
 
-      setTanggalFormated(formatTanggal);
+        setTanggalFormated(formatTanggal);
+      }
     };
 
     fetchData();
@@ -120,12 +126,29 @@ export default function page({ params }: { params: Params }) {
         }
       );
 
+      if (data.length > 0) {
+        setEnableTotalNilai(true);
+      }
+
       const dataWithIndex = data?.map((item, index) => ({
         ...item,
         idx: index + 1,
       }));
 
-      console.log(dataWithIndex);
+      let newPersentase = persentaseTotal;
+      let newNilaiAkhir = nilaiAkhirTotal;
+
+      data.map((item) => {
+        newPersentase += item.persentase;
+        newNilaiAkhir += item.nilaiAkhir;
+      });
+
+      setPersentaseTotal(newPersentase);
+      setNilaiAkhirTotal(newNilaiAkhir);
+
+      if (data.length === 4) {
+        setIsNilaiLengkap(true);
+      }
 
       setDataNilaiBAP(dataWithIndex);
     };
@@ -308,41 +331,53 @@ export default function page({ params }: { params: Params }) {
 
     const file = await handleTTD();
     if (file) {
-      setFileTTD(file);
+      const fileUrl = URL.createObjectURL(file);
+      Swal.fire({
+        title: "Apakah Anda Yakin untuk Menyimpan Tanda Tangan Ini?",
+        html: `<img src="${fileUrl}" style='width:100%; max-height:200px; object-fit:contain;'>`,
+        showDenyButton: true,
+        // showCancelButton: true,
+        confirmButtonText: "Simpan",
+        denyButtonText: "Batal",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          setFileTTD(file);
+          const formData = new FormData();
 
-      const formData = new FormData();
+          formData.append("idSidang", idSidangInt.toString());
+          formData.append("role", roleDosen);
 
-      formData.append("idSidang", idSidangInt.toString());
-      formData.append("role", roleDosen);
+          formData.append("gambarTTD", file);
+          try {
+            const { data } = await axios.post(
+              "http://localhost:5000/api/sidang/ttdBapSidang",
+              formData
+            );
 
-      formData.append("gambarTTD", file);
+            if (data) {
+              Swal.fire({
+                title: "Success!",
+                text: "Berhasil Menyimpan Tanda Tangan!",
+                icon: "success",
+                confirmButtonText: "OK",
+              }).then(function () {
+                location.reload();
+              });
+            }
 
-      try {
-        const { data } = await axios.post(
-          "http://localhost:5000/api/sidang/ttdBapSidang",
-          formData
-        );
-
-        if (data) {
-          Swal.fire({
-            title: "Success!",
-            text: "Berhasil Menyimpan Tanda Tangan!",
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(function () {
-            location.reload();
-          });
+            router.push(`/persetujuan-bap/${roleDosen}/${idSidangInt}`);
+          } catch (error) {
+            Swal.fire({
+              title: "Error!",
+              text: "Gagal Menyimpan Tanda Tangan, Silakan Coba Lagi!",
+              icon: "error",
+              confirmButtonText: "OK",
+            });
+          }
+        } else if (result.isDenied) {
+          Swal.fire("Tanda Tangan Batal Disimpan!", "", "info");
         }
-
-        router.push(`/persetujuan-bap/${roleDosen}/${idSidangInt}`);
-      } catch (error) {
-        Swal.fire({
-          title: "Error!",
-          text: "Gagal Menyimpan Tanda Tangan, Silakan Coba Lagi!",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      }
+      });
     }
   };
 
@@ -355,6 +390,26 @@ export default function page({ params }: { params: Params }) {
       buttons.forEach((element) => {
         (element as HTMLElement).style.display = "none";
       });
+
+      const printArea = input;
+      const textBiru = input.querySelector("#ubahWarnaTextPrint");
+
+      printArea.className = printArea.className.replace(
+        /\bbg-blue-50\b/,
+        "bg-white"
+      );
+
+      printArea.className += " pb-60";
+
+      if (textBiru) {
+        textBiru.className = textBiru.className.replace(
+          /\btext-blue-500\b/,
+          "text-black"
+        );
+
+        textBiru.className += " pt-40 pb-20";
+      }
+
       // Create PDF with A4 dimensions
       const pdf = new jsPDF({
         orientation: "portrait",
@@ -377,12 +432,29 @@ export default function page({ params }: { params: Params }) {
         // foreignObjectRendering: true,
         imageTimeout: 0,
         windowWidth: 794, // A4 width in pixels (210mm * 3.78 pixels/mm)
-        windowHeight: 1123, // A4 height in pixels (297mm * 3.78 pixels/mm)
+        windowHeight: 900, // A4 height in pixels (297mm * 3.78 pixels/mm)
       });
 
       buttons.forEach((element) => {
         (element as HTMLElement).style.display = "";
       });
+
+      printArea.className = printArea.className.replace(
+        /\bbg-white\b/,
+        "bg-blue-50"
+      );
+
+      printArea.className = printArea.className.replace(/\s*pb-60\s*/g, " ");
+
+      if (textBiru) {
+        textBiru.className = textBiru.className.replace(
+          /\btext-black\b/,
+          "text-blue-500"
+        );
+
+        textBiru.className = textBiru.className.replace(/\s*pt-40\s*/g, " ");
+        textBiru.className = textBiru.className.replace(/\s*pb-20\s*/g, " ");
+      }
 
       // Convert canvas to image
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
@@ -564,7 +636,10 @@ export default function page({ params }: { params: Params }) {
     >
       <div>
         <div className="text-center mb-2">
-          <h1 className="text-5xl font-bold text-blue-500">
+          <h1
+            className="text-5xl font-bold text-blue-500"
+            id="ubahWarnaTextPrint"
+          >
             Berita Acara Sidang Skripsi
           </h1>
         </div>
@@ -623,17 +698,22 @@ export default function page({ params }: { params: Params }) {
           <div className="mt-2">
             <Table
               aria-label="Example table with dynamic content"
+              className="!border-b-0 shadow-none"
               classNames={{
-                base: "max-h-[360px] ",
-                wrapper: "p-0",
+                base: "max-h-[360px] !border-b-0 ",
+                wrapper: "p-0 !border-b-0 shadow-none",
+                table: "!border-b-0",
+                tbody: "!border-b-0",
+                tr: "!border-b-0",
+                td: "!border-b-0",
               }}
               radius="none"
             >
-              <TableHeader columns={columns} className="p-0">
+              <TableHeader columns={columns} className="p-0 !border-b-0 ">
                 {(column) => (
                   <TableColumn
                     key={column.key}
-                    className="text-center font-semibold text-sm text-black sticky top-0 bg-default-100 bg-opacity-100 z-10 mt-4"
+                    className="text-center font-semibold text-sm text-black sticky top-0 bg-default-100 bg-opacity-100 z-10 mt-4 "
                   >
                     {column.label}
                   </TableColumn>
@@ -641,31 +721,45 @@ export default function page({ params }: { params: Params }) {
               </TableHeader>
               <TableBody
                 items={dataNilaiBAP || []}
-                emptyContent={"Berita Acara Sidang Skripsi Masih Kosong"}
+                emptyContent={"Rekapitulasi Nilai Sidang Skripsi Masih Kosong"}
               >
-                {(item) => {
-                  return (
-                    <TableRow key={item.idx} className="">
-                      <TableCell className="text-center font-medium max-w-10 text-[13px]">
-                        {item.idx}
-                      </TableCell>
-                      <TableCell className="text-center font-medium max-w-40 break-words text-[13px]">
-                        {item.role}
-                      </TableCell>
-                      <TableCell className="text-center font-medium max-w-32 break-words text-[13px]">
-                        {item.nilai}
-                      </TableCell>
-                      <TableCell className="text-center font-medium max-w-10 text-[13px]">
-                        {item.persentase}
-                      </TableCell>
-                      <TableCell className="text-center font-medium max-w-10 text-[13px]">
-                        {item.nilaiAkhir}
-                      </TableCell>
-                    </TableRow>
-                  );
-                }}
+                {(item) => (
+                  <TableRow key={item.idx} className="">
+                    <TableCell className="text-center font-medium max-w-10 text-[13px]">
+                      {item.idx}
+                    </TableCell>
+                    <TableCell className="text-center font-medium max-w-40 break-words text-[13px]">
+                      {item.role}
+                    </TableCell>
+                    <TableCell className="text-center font-medium max-w-32 break-words text-[13px]">
+                      {item.nilai}
+                    </TableCell>
+                    <TableCell className="text-center font-medium max-w-10 text-[13px]">
+                      {item.persentase}%
+                    </TableCell>
+                    <TableCell className="text-center font-medium max-w-10 text-[13px]">
+                      {item.nilaiAkhir}
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
+
+            {enableTotalNilai ? (
+              persentaseTotal === 100 ? (
+                <div className="flex bg-white w-full text-[13px] font-medium">
+                  <div className="ml-[170px]">Total </div>
+                  <div className="ml-[226px]">{persentaseTotal}% </div>
+                  <div className="ml-[88px]">{nilaiAkhirTotal} </div>
+                </div>
+              ) : (
+                <div className="flex bg-white w-full text-[13px] font-medium">
+                  <div className="ml-[170px]">Total </div>
+                  <div className="ml-[229px]">{persentaseTotal}% </div>
+                  <div className="ml-[92px]">{nilaiAkhirTotal} </div>
+                </div>
+              )
+            ) : null}
           </div>
         </div>
 
@@ -726,9 +820,11 @@ export default function page({ params }: { params: Params }) {
           {roleDosen !== "Pembimbing Pendamping" ? (
             <Button
               className={`bg-violet-500 text-white px-8 py-2 pointer-events-auto ${
-                disableButtonTTD ? "cursor-not-allowed" : "cursor-pointer"
+                disableButtonTTD || !isNilaiLengkap
+                  ? "cursor-not-allowed"
+                  : "cursor-pointer"
               }`}
-              isDisabled={disableButtonTTD}
+              isDisabled={disableButtonTTD || !isNilaiLengkap}
               onPress={onOpen}
             >
               Tanda Tangan
