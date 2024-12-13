@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Input, Button, ButtonGroup } from "@nextui-org/react";
@@ -10,6 +10,7 @@ import { EyeSlashFilledIcon } from "../components/EyeSlashFilledIcon ";
 import { EyeFilledIcon } from "../components/EyeFilledIcon";
 import { useAuth } from "../utils/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -42,7 +43,13 @@ const LoginPage = () => {
       setUser(decodedUser);
 
       router.push("/");
-    } catch (error) {
+    } catch (error: any) {
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.message,
+        icon: "error",
+        confirmButtonText: "Confirm",
+      });
       console.log(error);
     }
   };
