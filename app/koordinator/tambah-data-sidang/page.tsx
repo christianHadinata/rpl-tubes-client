@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { showToast } from "@/app/utils/showToast";
 import Swal from "sweetalert2";
+import { getToken } from "@/app/utils/getToken";
 
 type MahasiswaTypes = {
   namaMahasiswa: string;
@@ -69,7 +70,9 @@ export default function TambahDataSidang() {
         "http://localhost:5000/api/dosen/all"
       );
       const filteredData = data.filter(
-        (currData) => currData.emailDosen != "-"
+        (currData) =>
+          currData.emailDosen != "-" &&
+          currData.emailDosen != "admin@unpar.ac.id"
       );
       setDataDosen(filteredData);
     };
@@ -168,6 +171,11 @@ export default function TambahDataSidang() {
               emailPembimbingPendamping: selectedDosenPembimbingPendamping,
               emailPengujiUtama: selectedDosenPengujiUtama,
               emailPengujiPendamping: selectedDosenPengujiPendamping,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
             }
           );
 
@@ -182,12 +190,24 @@ export default function TambahDataSidang() {
             });
           }
         } catch (error: any) {
-          Swal.fire({
-            title: "Error!",
-            text: `${error.response.statusText}`,
-            icon: "error",
-            confirmButtonText: "Confirm",
-          });
+          if (error.response?.data?.message === "idSidang is required") {
+            const errorMessage = "you are not allowed to access this resource";
+            router.push(
+              `../../error?message=${encodeURIComponent(errorMessage)}`
+            );
+          } else if (error.response?.statusText === "Unauthorized") {
+            const errorMessage = "you are not allowed to access this resource";
+            router.push(
+              `../../error?message=${encodeURIComponent(errorMessage)}`
+            );
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: `${error.response.statusText}`,
+              icon: "error",
+              confirmButtonText: "Confirm",
+            });
+          }
         }
       }
     }

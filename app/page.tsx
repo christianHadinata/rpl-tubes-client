@@ -79,6 +79,10 @@ export default function Home() {
     };
 
     if (user) {
+      console.log(user.role);
+      if (user.role === "Admin") {
+        router.push("/admin");
+      }
       fetchData();
       const updatedRoleList =
         user.role === "Koordinator"

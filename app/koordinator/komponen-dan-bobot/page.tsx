@@ -16,6 +16,7 @@ import {
   TableCell,
 } from "@nextui-org/react";
 import Link from "next/link";
+import { getToken } from "@/app/utils/getToken";
 
 type DataAwalTypes = {
   role: string;
@@ -38,18 +39,34 @@ export default function page() {
   const [jumlahKomponen, setJumlahKomponen] = useState(0);
   const [persentaseNilai, setPersentaseNilai] = useState(0);
 
+  const router = useRouter();
+
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get<DataAwalTypes[]>(
-        "http://localhost:5000/api/koordinator/komponen-bobot"
-      );
+      try {
+        const { data } = await axios.get<DataAwalTypes[]>(
+          "http://localhost:5000/api/koordinator/komponen-bobot",
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+          }
+        );
 
-      const dataWithIndex = data.map((item, index) => ({
-        ...item,
-        idx: index + 1,
-      }));
-      console.log(dataWithIndex);
-      setDataKomponenDanBobot(dataWithIndex);
+        const dataWithIndex = data.map((item, index) => ({
+          ...item,
+          idx: index + 1,
+        }));
+        console.log(dataWithIndex);
+        setDataKomponenDanBobot(dataWithIndex);
+      } catch (error: any) {
+        if (error.response?.data?.message === "idSidang is required") {
+          const errorMessage = "you are not allowed to access this resource";
+          router.push(
+            `../../error?message=${encodeURIComponent(errorMessage)}`
+          );
+        }
+      }
     };
 
     fetchData();
