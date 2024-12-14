@@ -125,7 +125,7 @@ export default function page({ params }: { params: Params }) {
       "Pembimbing Pendamping": [
         {
           icon: commonIcons.catatanSidang,
-          label: "MEMBUAT CATATAN SIDANG",
+          label: "MELIHAT CATATAN SIDANG",
           link: `/catatan-sidang/${roleDosen}/${idSidangInt}`,
         },
         {
