@@ -30,6 +30,11 @@ type DataSidangTypes = {
   roleDosen: string | null;
 };
 
+type RoleListTypes = {
+  key: string;
+  label: string;
+};
+
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -42,6 +47,11 @@ export default function Home() {
   const [filteredData, setFilteredData] = useState<
     DataSidangTypes[] | undefined
   >([]);
+
+  const [roleList, setRoleList] = useState<RoleListTypes[]>([]);
+  const [npm, setNpm] = useState("");
+
+  const { setUser } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -69,7 +79,44 @@ export default function Home() {
     };
 
     if (user) {
+      console.log(user.role);
+      if (user.role === "Admin") {
+        router.push("/admin");
+      }
       fetchData();
+      const updatedRoleList =
+        user.role === "Koordinator"
+          ? [
+              { key: "Koordinator", label: "Koordinator" },
+              { key: "Pembimbing Utama", label: "Pembimbing Utama" },
+              { key: "Pembimbing Pendamping", label: "Pembimbing Pendamping" },
+              { key: "Ketua Tim Penguji", label: "Ketua Tim Penguji" },
+              { key: "Anggota Tim Penguji", label: "Anggota Tim Penguji" },
+            ]
+          : [
+              { key: "Pembimbing Utama", label: "Pembimbing Utama" },
+              { key: "Pembimbing Pendamping", label: "Pembimbing Pendamping" },
+              { key: "Ketua Tim Penguji", label: "Ketua Tim Penguji" },
+              { key: "Anggota Tim Penguji", label: "Anggota Tim Penguji" },
+            ];
+
+      setRoleList(updatedRoleList);
+
+      if (user?.role === "Mahasiswa") {
+        const fetchNPM = async () => {
+          const { data } = await axios.get(
+            "http://localhost:5000/api/mahasiswa/npm",
+            {
+              params: { email: user?.email },
+            }
+          );
+          console.log(data);
+
+          setNpm(data);
+        };
+
+        fetchNPM();
+      }
     }
     console.log(user);
   }, [loading, user, router]);
@@ -119,6 +166,11 @@ export default function Home() {
     searchMessage,
     selectedKategori,
   ]);
+
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   // const searchHandler = (value: string) => {
   //   if (
@@ -184,6 +236,10 @@ export default function Home() {
       key: "GANJIL 2024/2025",
       label: "GANJIL 2024/2025",
     },
+    {
+      key: "GENAP 2024/2025",
+      label: "GENAP 2024/2025",
+    },
   ];
 
   const kategoriList = [
@@ -198,29 +254,6 @@ export default function Home() {
     {
       key: "npm",
       label: "NPM",
-    },
-  ];
-
-  const roleList = [
-    {
-      key: "Koordinator",
-      label: "Koordinator",
-    },
-    {
-      key: "Pembimbing Utama",
-      label: "Pembimbing Utama",
-    },
-    {
-      key: "Pembimbing Pendamping",
-      label: "Pembimbing Pendamping",
-    },
-    {
-      key: "Ketua Tim Penguji",
-      label: "Ketua Tim Penguji",
-    },
-    {
-      key: "Anggota Tim Penguji",
-      label: "Anggota Tim Penguji",
     },
   ];
 
@@ -263,6 +296,7 @@ export default function Home() {
             size="lg"
             as={Link}
             href="/login"
+            onClick={handleLogOut}
           >
             Log out
           </Button>
@@ -381,7 +415,9 @@ export default function Home() {
                         <TableCell className="text-center font-medium max-w-10">
                           <Button
                             as={Link}
-                            href={""}
+                            href={`/navigation/${
+                              item.roleDosen || "Mahasiswa"
+                            }/${item.idSidang}`}
                             variant="bordered"
                             isDisabled={item.TA === 1 ? true : false}
                             className={`${
@@ -451,6 +487,21 @@ export default function Home() {
                     size="md"
                   >
                     Tambah Data Sidang
+                  </Button>
+                </div>
+              ) : null}
+
+              {/* Hanya tersedia bagi Mahasiswa */}
+              {user?.role === "Mahasiswa" ? (
+                <div className="pt-8 w-full flex justify-evenly items-center">
+                  <Button
+                    as={Link}
+                    href={`/nilai-skripsi-mahasiswa/${npm}`}
+                    className="bg-violet-500 text-white  text-lg w-40 h-20 break-words text-center whitespace-normal overflow-visible"
+                    size="md"
+                  >
+                    <img src={"/icon-lihatNilai.png"} width="50" height="50" />
+                    <p className="break-words">Melihat Nilai</p>
                   </Button>
                 </div>
               ) : null}
