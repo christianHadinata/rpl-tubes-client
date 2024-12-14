@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import { getToken } from "@/app/utils/getToken";
 
 type Params = {
   roleDosen: string;
@@ -105,6 +106,14 @@ export default function page({ params }: { params: Params }) {
             tempat: selectedRuangSidang,
             jamMulai: jamMulaiFormatedTime,
             jamSelesai: jamSelesaiFormatedTime,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+            params: {
+              idSidang: idSidangInt,
+            },
           }
         );
 
@@ -118,13 +127,26 @@ export default function page({ params }: { params: Params }) {
             router.push(`../../navigation/${roleDosen}/${idSidangInt}`);
           });
         }
-      } catch (error) {
-        Swal.fire({
-          title: "Error!",
-          text: `Gagal Menyimpan Jadwal dan Tempat Sidang, Silakan Coba Lagi!`,
-          icon: "error",
-          confirmButtonText: "Confirm",
-        });
+      } catch (error: any) {
+        if (
+          error.response?.data?.message ===
+          "you are not allowed to access this resource"
+        ) {
+          const errorMessage =
+            error.response?.data?.message ||
+            error.message ||
+            "An unknown error occurred";
+          router.push(
+            `../../error?message=${encodeURIComponent(errorMessage)}`
+          );
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: `Gagal Menyimpan Jadwal dan Tempat Sidang, Silakan Coba Lagi!`,
+            icon: "error",
+            confirmButtonText: "Confirm",
+          });
+        }
       }
     }
   };
