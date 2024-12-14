@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
   Button,
@@ -15,6 +16,7 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import Swal from "sweetalert2";
+import { getToken } from "@/app/utils/getToken";
 
 type Params = {
   roleDosen: string;
@@ -28,19 +30,32 @@ export default function page({ params }: { params: Params }) {
   const idSidangInt = parseInt(idSidang);
   const [catatanSidang, setCatatanSidang] = useState("");
 
+  const router = useRouter();
+
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios.get(
-        "http://localhost:5000/api/sidang/catatanSidang",
-        {
-          params: {
-            idSidang: idSidangInt,
-          },
-        }
-      );
-      console.log(data);
+      try {
+        const { data } = await axios.get(
+          "http://localhost:5000/api/sidang/catatanSidang",
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+            params: {
+              idSidang: idSidangInt,
+            },
+          }
+        );
+        console.log(data);
 
-      setCatatanSidang(data);
+        setCatatanSidang(data);
+      } catch (error: any) {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "An unknown error occurred";
+        router.push(`../../error?message=${encodeURIComponent(errorMessage)}`);
+      }
     };
 
     fetchData();
@@ -53,6 +68,14 @@ export default function page({ params }: { params: Params }) {
         {
           idSidang: idSidangInt,
           isiCatatan: catatanSidang,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+          params: {
+            idSidang: idSidangInt,
+          },
         }
       );
 
