@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { showToast } from "@/app/utils/showToast";
 import Swal from "sweetalert2";
+import { getToken } from "@/app/utils/getToken";
 
 type MahasiswaTypes = {
   namaMahasiswa: string;
@@ -46,7 +47,7 @@ export default function TambahDataSidang() {
   const [selectedDosenPengujiUtama, setSelectedDosenPengujiUtama] =
     useState("");
   const [selectedDosenPengujiPendamping, setSelectedDosenPengujiPendamping] =
-    useState("");
+    useState("-");
 
   const [selectedNama, setSelectedNama] = useState<Selection>(new Set([]));
   const [selectedNPM, setSelectedNPM] = useState<Selection>(new Set([]));
@@ -65,8 +66,15 @@ export default function TambahDataSidang() {
     };
 
     const fetchDataDosen = async () => {
-      const { data } = await axios.get("http://localhost:5000/api/dosen/all");
-      setDataDosen(data);
+      const { data } = await axios.get<DosenTypes[]>(
+        "http://localhost:5000/api/dosen/all"
+      );
+      const filteredData = data.filter(
+        (currData) =>
+          currData.emailDosen != "-" &&
+          currData.emailDosen != "admin@unpar.ac.id"
+      );
+      setDataDosen(filteredData);
     };
 
     fetchDataMahasiswa();
@@ -97,6 +105,9 @@ export default function TambahDataSidang() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (selectedDosenPembimbingPendamping === "") {
+      setSelectedDosenPembimbingPendamping("-");
+    }
 
     if (
       !selectedMahasiswa ||
@@ -104,7 +115,6 @@ export default function TambahDataSidang() {
       !jenisSkripsi ||
       !tahunAkademik ||
       !selectedDosenPembimbingUtama ||
-      !selectedDosenPembimbingPendamping ||
       !selectedDosenPengujiUtama ||
       !selectedDosenPengujiPendamping
     ) {
@@ -161,6 +171,11 @@ export default function TambahDataSidang() {
               emailPembimbingPendamping: selectedDosenPembimbingPendamping,
               emailPengujiUtama: selectedDosenPengujiUtama,
               emailPengujiPendamping: selectedDosenPengujiPendamping,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
             }
           );
 
@@ -175,12 +190,24 @@ export default function TambahDataSidang() {
             });
           }
         } catch (error: any) {
-          Swal.fire({
-            title: "Error!",
-            text: `${error.response.statusText}`,
-            icon: "error",
-            confirmButtonText: "Confirm",
-          });
+          if (error.response?.data?.message === "idSidang is required") {
+            const errorMessage = "you are not allowed to access this resource";
+            router.push(
+              `../../error?message=${encodeURIComponent(errorMessage)}`
+            );
+          } else if (error.response?.statusText === "Unauthorized") {
+            const errorMessage = "you are not allowed to access this resource";
+            router.push(
+              `../../error?message=${encodeURIComponent(errorMessage)}`
+            );
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: `${error.response.statusText}`,
+              icon: "error",
+              confirmButtonText: "Confirm",
+            });
+          }
         }
       }
     }
@@ -209,6 +236,10 @@ export default function TambahDataSidang() {
     {
       key: "GANJIL 2024/2025",
       label: "GANJIL 2024/2025",
+    },
+    {
+      key: "GENAP 2024/2025",
+      label: "GENAP 2024/2025",
     },
   ];
 
