@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { getToken } from "@/app/utils/getToken";
 
 type Params = {
   selectedRole: string;
@@ -67,35 +68,67 @@ export default function page({ params }: { params: Params }) {
         confirmButtonText: "Confirm",
       });
     } else {
-      try {
-        const { data } = await axios.post(
-          "http://localhost:5000/api/koordinator/komponen-bobot",
-          {
-            selectedRole,
-            banyakKomponen,
-            persentaseNilai: persentaseNilaiFloat,
-            arrNamaKomponen,
-            arrBobotKomponen,
-          }
-        );
+      let isPersentase100 = false;
 
-        if (data) {
-          Swal.fire({
-            title: "Success!",
-            text: "Komponen dan Bobot Penilaian Berhasil Ditambah!",
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(function () {
-            router.push("/koordinator/komponen-dan-bobot");
-          });
-        }
-      } catch (error: any) {
+      let tempPersentase = 0;
+      for (let i = 0; i < banyakKomponen; i++) {
+        tempPersentase += parseFloat(arrBobotKomponen[i]);
+      }
+
+      if (tempPersentase == 100) {
+        isPersentase100 = true;
+      }
+
+      if (!isPersentase100) {
         Swal.fire({
           title: "Error!",
-          text: `${error.response.statusText}`,
+          text: `Total bobot Keseluruhan Harus 100%!`,
           icon: "error",
           confirmButtonText: "Confirm",
         });
+      } else {
+        try {
+          const { data } = await axios.post(
+            "http://localhost:5000/api/koordinator/komponen-bobot",
+            {
+              selectedRole,
+              banyakKomponen,
+              persentaseNilai: persentaseNilaiFloat,
+              arrNamaKomponen,
+              arrBobotKomponen,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              },
+            }
+          );
+
+          if (data) {
+            Swal.fire({
+              title: "Success!",
+              text: "Komponen dan Bobot Penilaian Berhasil Ditambah!",
+              icon: "success",
+              confirmButtonText: "OK",
+            }).then(function () {
+              router.push("/koordinator/komponen-dan-bobot");
+            });
+          }
+        } catch (error: any) {
+          if (error.response?.data?.message === "idSidang is required") {
+            const errorMessage = "you are not allowed to access this resource";
+            router.push(
+              `../../error?message=${encodeURIComponent(errorMessage)}`
+            );
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: `${error.response.statusText}`,
+              icon: "error",
+              confirmButtonText: "Confirm",
+            });
+          }
+        }
       }
     }
   };
