@@ -19,6 +19,7 @@ import {
 } from "@nextui-org/react";
 import Link from "next/link";
 import Swal from "sweetalert2";
+import { getToken } from "@/app/utils/getToken";
 
 type Params = {
   idSidang: string;
@@ -44,6 +45,8 @@ type DataSidangTypes = {
 export default function page({ params }: { params: Params }) {
   const { idSidang } = params;
   const idSidangInt = parseInt(idSidang);
+
+  const router = useRouter();
 
   const [dataSidang, setDataSidang] = useState<DataSidangTypes>();
 
@@ -80,12 +83,29 @@ export default function page({ params }: { params: Params }) {
         confirmButtonText: "Confirm",
       });
     } else {
+      if (nilai < 1 || nilai > 100) {
+        Swal.fire({
+          title: "Error!",
+          text: "Nilai harus berada pada range (1-100)!",
+          icon: "error",
+          confirmButtonText: "Confirm",
+        });
+        return;
+      }
       try {
         const { data } = await axios.post(
           "http://localhost:5000/api/koordinator/tambah-nilai",
           {
             idSidang: idSidangInt,
             nilai,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+            params: {
+              idSidang: idSidangInt,
+            },
           }
         );
 
@@ -101,13 +121,26 @@ export default function page({ params }: { params: Params }) {
             location.reload();
           });
         }
-      } catch (error) {
-        Swal.fire({
-          title: "Error!",
-          text: "Terjadi Kesalahan Sistem, Silahkan Coba Lagi!",
-          icon: "error",
-          confirmButtonText: "Confirm",
-        });
+      } catch (error: any) {
+        if (
+          error.response?.data?.message ===
+          "you are not allowed to access this resource"
+        ) {
+          const errorMessage =
+            error.response?.data?.message ||
+            error.message ||
+            "An unknown error occurred";
+          router.push(
+            `../../error?message=${encodeURIComponent(errorMessage)}`
+          );
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "Terjadi Kesalahan Sistem, Silahkan Coba Lagi!",
+            icon: "error",
+            confirmButtonText: "Confirm",
+          });
+        }
       }
     }
   };
