@@ -198,11 +198,19 @@ export default function page() {
           <Button
             as={Link}
             href={`/koordinator/komponen-dan-bobot/${selectedRole}/${jumlahKomponen}/${persentaseNilai}`}
-            className="bg-violet-500 w-1/2 text-white center justify-self-center"
+            className={`bg-violet-500 w-1/2 text-white center justify-self-center pointer-events-auto ${
+              selectedRole != null &&
+              jumlahKomponen > 0 &&
+              persentaseNilai > 0 &&
+              persentaseNilai <= 100
+                ? "cursor-pointer"
+                : "cursor-not-allowed"
+            }`}
             isDisabled={
               selectedRole != null &&
-              jumlahKomponen != 0 &&
-              persentaseNilai != 0
+              jumlahKomponen > 0 &&
+              persentaseNilai > 0 &&
+              persentaseNilai <= 100
                 ? false
                 : true
             }
