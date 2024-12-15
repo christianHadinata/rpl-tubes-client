@@ -172,30 +172,6 @@ export default function Home() {
     setUser(null);
   };
 
-  // const searchHandler = (value: string) => {
-  //   if (
-  //     selectedKategori === "namaMahasiswa" ||
-  //     selectedKategori === "judulSkripsi" ||
-  //     selectedKategori === "npm"
-  //   ) {
-  //     setFilteredData(() =>
-  //       filteredData?.filter((e: DataSidangTypes) =>
-  //         e[selectedKategori].toLowerCase().includes(value.toLowerCase())
-  //       )
-  //     );
-  //   } else {
-  //     setFilteredData(() =>
-  //       filteredData?.filter((e) =>
-  //         Object.values(e).some(
-  //           (attr) =>
-  //             typeof attr === "string" &&
-  //             attr.toLowerCase().includes(value.toLowerCase())
-  //         )
-  //       )
-  //     );
-  //   }
-  // };
-
   const columns = [
     {
       key: "no",
@@ -436,35 +412,6 @@ export default function Home() {
                       </TableRow>
                     );
                   }}
-
-                  {/* <TableRow key={1} className="">
-                    <TableCell className="text-center font-medium max-w-10">
-                      {1}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-40 break-words">
-                      {
-                        "Sistem Rekomendasi E-Commerce Menggunakan Collaborative Filtering"
-                      }
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-32 break-words">
-                      {"Christian Hadinata"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"6182201020"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      {"1"}
-                    </TableCell>
-                    <TableCell className="text-center font-medium max-w-10">
-                      <Button as={Link} href={""} variant="bordered">
-                        <img
-                          src="/icon-detail.png"
-                          alt=""
-                          className="w-10 h-10"
-                        />
-                      </Button>
-                    </TableCell>
-                  </TableRow> */}
                 </TableBody>
               </Table>
 
