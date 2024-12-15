@@ -189,9 +189,9 @@ export default function page({ params }: { params: Params }) {
     const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
 
-    ctx.strokeStyle = "black"; // Ensure black drawing color
-    ctx.lineWidth = 2; // Set line thickness
-    ctx.lineCap = "round"; // Smooth line endings
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -208,9 +208,9 @@ export default function page({ params }: { params: Params }) {
     const ctx = canvas?.getContext("2d");
     if (!ctx || !canvas) return;
 
-    ctx.strokeStyle = "black"; // Ensure black drawing color
-    ctx.lineWidth = 2; // Set line thickness
-    ctx.lineCap = "round"; // Smooth line endings
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -227,7 +227,7 @@ export default function page({ params }: { params: Params }) {
     if (ctx) ctx.beginPath();
   };
 
-  // Clear canvas
+  // Clear canvas buat logic bersihin ttd
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -236,12 +236,10 @@ export default function page({ params }: { params: Params }) {
     }
   };
 
-  // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       clearCanvas();
-      // You would typically handle file preview or upload here
     }
   };
 
@@ -255,19 +253,18 @@ export default function page({ params }: { params: Params }) {
     const imageData = context.getImageData(0, 0, width, height);
     const pixels = imageData.data;
 
-    // Check if all pixels are transparent black (0, 0, 0, 0)
     for (let i = 0; i < pixels.length; i += 4) {
       if (
-        pixels[i] !== 0 || // Red
-        pixels[i + 1] !== 0 || // Green
-        pixels[i + 2] !== 0 || // Blue
-        pixels[i + 3] !== 0 // Alpha
+        pixels[i] !== 0 ||
+        pixels[i + 1] !== 0 ||
+        pixels[i + 2] !== 0 ||
+        pixels[i + 3] !== 0
       ) {
-        return false; // A non-default pixel was found
+        return false;
       }
     }
 
-    return true; // All pixels are default
+    return true;
   };
 
   const handleSubmitSignature = async () => {
@@ -292,18 +289,17 @@ export default function page({ params }: { params: Params }) {
         } else {
           const ctx = canvas?.getContext("2d");
           if (ctx && canvas) {
-            // Create a new canvas with white background
+            // Buat canvas baru dengan background putih buat ngakalin
+            // jadi nantinya canvas lama yang transparant ditempel ke canvas baru ini
             const newCanvas = document.createElement("canvas");
             newCanvas.width = canvas.width;
             newCanvas.height = canvas.height;
             const newCtx = newCanvas.getContext("2d");
 
-            // Fill new canvas with white
             if (newCtx) {
               newCtx.fillStyle = "white";
               newCtx.fillRect(0, 0, newCanvas.width, newCanvas.height);
 
-              // Draw the original canvas content onto the new canvas
               newCtx.drawImage(canvas, 0, 0);
             }
 
@@ -410,29 +406,28 @@ export default function page({ params }: { params: Params }) {
         textBiru.className += " pt-40 pb-20";
       }
 
-      // Create PDF with A4 dimensions
+      // Buat PDF ukuran A4 pake library
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: "a4", // Explicitly set A4 format
+        format: "a4",
       });
 
-      // A4 standard dimensions
-      const pageWidth = 210; // mm
-      const pageHeight = 297; // mm
-      const margin = 10; // mm
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 10;
 
-      // Enhanced html2canvas options
+      // Buat dulu canvas nya ukuran A4
       const canvas = await html2canvas(input, {
-        scale: 4, // Higher scale for better quality
+        scale: 4,
         useCORS: true,
         logging: false,
         allowTaint: true,
         backgroundColor: "white",
         // foreignObjectRendering: true,
         imageTimeout: 0,
-        windowWidth: 794, // A4 width in pixels (210mm * 3.78 pixels/mm)
-        windowHeight: 900, // A4 height in pixels (297mm * 3.78 pixels/mm)
+        windowWidth: 794,
+        windowHeight: 900,
       });
 
       buttons.forEach((element) => {
@@ -456,22 +451,21 @@ export default function page({ params }: { params: Params }) {
         textBiru.className = textBiru.className.replace(/\s*pb-20\s*/g, " ");
       }
 
-      // Convert canvas to image
+      // Convert canvas ke foto
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-      // Calculate image dimensions to fit A4
       const imgWidth = pageWidth - margin * 2;
       const scaleFactor = imgWidth / canvas.width;
       const imgHeight = canvas.height * scaleFactor;
 
-      // Add image to PDF
+      // Tambahkan foto ke PDF
       pdf.addImage(
         imgData,
         "JPEG",
-        margin, // X position
-        margin, // Y position
-        imgWidth, // Width
-        imgHeight, // Height
+        margin,
+        margin,
+        imgWidth,
+        imgHeight,
         undefined,
         "FAST"
       );
@@ -491,118 +485,6 @@ export default function page({ params }: { params: Params }) {
         confirmButtonText: "OK",
       });
     }
-
-    // bagian lama
-    // const input = printRef.current;
-    // if (!input) return;
-
-    // try {
-    //   // Hide buttons before capturing
-    //   const buttons = input.querySelectorAll("Button");
-    //   buttons.forEach((button) => {
-    //     (button as HTMLButtonElement).style.display = "none";
-    //   });
-
-    //   const Links = input.querySelectorAll("a");
-    //   Links.forEach((button) => {
-    //     button.style.display = "none";
-    //   });
-
-    //   // Create PDF document
-    //   const pdf = new jsPDF({
-    //     orientation: "portrait",
-    //     unit: "mm",
-    //     format: "a4",
-    //   });
-
-    //   // A4 dimensions in mm
-    //   const pageWidth = 210;
-    //   const pageHeight = 297;
-    //   const margin = 10;
-
-    //   // Capture the entire content with improved settings
-    //   const canvas = await html2canvas(input, {
-    //     scale: 3, // Higher scale for better quality
-    //     useCORS: true,
-    //     logging: false,
-    //     allowTaint: true,
-    //     backgroundColor: "white", // Ensure white background
-    //     imageTimeout: 0, // Remove image timeout
-    //   });
-
-    //   // Convert canvas to image
-    //   const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-    //   // Calculate scaling to fit the entire page
-    //   const imgWidth = pageWidth - margin * 2;
-    //   const scaleFactor = imgWidth / canvas.width;
-    //   const imgHeight = canvas.height * scaleFactor;
-
-    //   // If content fits on one page
-    //   if (imgHeight <= pageHeight - margin * 2) {
-    //     pdf.addImage(
-    //       imgData,
-    //       "JPEG",
-    //       margin,
-    //       margin,
-    //       imgWidth,
-    //       imgHeight,
-    //       undefined,
-    //       "FAST"
-    //     );
-    //   } else {
-    //     // Handle multi-page content
-    //     let position = margin;
-    //     pdf.addImage(
-    //       imgData,
-    //       "JPEG",
-    //       margin,
-    //       position,
-    //       imgWidth,
-    //       imgHeight,
-    //       undefined,
-    //       "FAST"
-    //     );
-
-    //     // Add additional pages if needed
-    //     while (position + imgHeight > pageHeight) {
-    //       pdf.addPage();
-    //       position -= pageHeight - margin * 2;
-
-    //       pdf.addImage(
-    //         imgData,
-    //         "JPEG",
-    //         margin,
-    //         -position,
-    //         imgWidth,
-    //         imgHeight,
-    //         undefined,
-    //         "FAST"
-    //       );
-    //     }
-    //   }
-
-    //   // Restore button visibility
-    //   buttons.forEach((button) => {
-    //     (button as HTMLButtonElement).style.display = "";
-    //   });
-    //   Links.forEach((button) => {
-    //     button.style.display = "";
-    //   });
-
-    //   // Save PDF with student name
-    //   pdf.save(
-    //     `Berita_Acara_Sidang_${dataSidang?.namaMahasiswa || "Mahasiswa"}.pdf`
-    //   );
-    // } catch (error) {
-    //   console.error("Error generating PDF:", error);
-    //   Swal.fire({
-    //     title: "Error!",
-    //     text: "Gagal membuat PDF, silakan coba lagi.",
-    //     icon: "error",
-    //     confirmButtonText: "OK",
-    //   });
-    // }
   };
 
   const columns = [
