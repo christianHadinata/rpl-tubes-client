@@ -389,6 +389,13 @@ export default function page({ params }: { params: Params }) {
 
       const printArea = input;
       const textBiru = input.querySelector("#ubahWarnaTextPrint");
+      const headerUnpar = input.querySelector("#headerUnpar");
+
+      headerUnpar?.classList.remove("hidden");
+
+      // if (headerUnpar) {
+      //   headerUnpar.className += "pb-40";
+      // }
 
       printArea.className = printArea.className.replace(
         /\bbg-blue-50\b/,
@@ -403,7 +410,7 @@ export default function page({ params }: { params: Params }) {
           "text-black"
         );
 
-        textBiru.className += " pt-40 pb-20";
+        textBiru.className += " pt-10 pb-10";
       }
 
       // Buat PDF ukuran A4 pake library
@@ -447,9 +454,14 @@ export default function page({ params }: { params: Params }) {
           "text-blue-500"
         );
 
+        textBiru.classList.remove("pt-10");
+        textBiru.classList.remove("pb-10");
+
         textBiru.className = textBiru.className.replace(/\s*pt-40\s*/g, " ");
         textBiru.className = textBiru.className.replace(/\s*pb-20\s*/g, " ");
       }
+
+      headerUnpar?.classList.add("hidden");
 
       // Convert canvas ke foto
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
@@ -512,10 +524,31 @@ export default function page({ params }: { params: Params }) {
 
   return (
     <div
-      className="bg-blue-50 flex items-center justify-center h-screen print:w-[210mm] print:min-h-[297mm] print:m-0 print:p-[10mm]"
+      className="bg-blue-50 flex flex-col items-center justify-center h-screen print:w-[210mm] print:min-h-[297mm] print:m-0 print:p-[10mm]"
       ref={printRef}
       id="printArea"
     >
+      <div
+        className="gap-x-5 flex justify-between items-center  hidden pt-64"
+        id="headerUnpar"
+      >
+        <div>
+          <img src="/logo-unpar.png" alt="logo unpar" className="h-20 w-20" />
+        </div>
+
+        <div className="flex flex-col h-32 justify-center ">
+          <p className="font-semibold text-xl">Program Studi Informatika</p>
+          <p className="font-semibold text-lg">Fakultas Sains</p>
+          <p className="font-semibold text-lg">
+            Universitas Katolik Parahyangan
+          </p>
+        </div>
+        <img
+          src="/logo-informatika.jpg"
+          alt="logo informatika"
+          className="h-20 w-56"
+        />
+      </div>
       <div>
         <div className="text-center mb-2">
           <h1
